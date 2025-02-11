@@ -233,7 +233,7 @@ public class PullRequestCreateChange {
       PatchSetInserter patchSetInserter =
           patchSetInserterFactory.create(changeNotes, psId, cherryPickCommit);
       patchSetInserter.setMessage(pullRequestMessage);
-      patchSetInserter.setValidate(false);
+      patchSetInserter.disableValidation();
 
       bu.addOp(change.getId(), patchSetInserter);
       bu.execute();
