@@ -1,0 +1,36 @@
+name: Release
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag from GerritCodeReview/plugins_github
+        required: true
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        name: Clone iamricard/plugins_github @ ${{ inputs.tag }}
+        with:
+          repository: iamricard/plugins_github
+          ref: v${{ inputs.tag }}
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: "zulu"
+          java-version: "17"
+          cache: "maven"
+      - name: Build with Maven
+        run: |
+          mvn install && \
+            cp github-oauth/target/github-oauth-${{ inputs.tag }}.jar github-oauth.jar && \
+            cp github-plugin/target/github-plugin-${{ inputs.tag }}.jar github-plugin.jar
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ inputs.tag }}
+          fail_on_unmatched_files: true
+          files: |
+            github-oauth.jar
+            github-plugin.jar
+          make_latest: true
